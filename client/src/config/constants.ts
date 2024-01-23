@@ -9,4 +9,4 @@ export const GENRES = [
     'Biography',
     'Self-Help',
     'Adventure',
-];
+] as const;

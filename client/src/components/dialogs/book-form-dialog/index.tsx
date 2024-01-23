@@ -35,7 +35,15 @@ const BookFormDialog = ({ open, onClose, onSubmit, initialValues, isUpdate }: Bo
 
     return (
         <Dialog open={open} onClose={onClose}>
-            <DialogTitle>{isUpdate ? `Update the book ${formik.values.title}` : 'Create a New Book'} </DialogTitle>
+            <DialogTitle>
+                {isUpdate ? (
+                    <>
+                        Update the book <span className="font-bold">{initialValues.title}</span>
+                    </>
+                ) : (
+                    'Create a New Book'
+                )}{' '}
+            </DialogTitle>
             <form onSubmit={formik.handleSubmit}>
                 <DialogContent>
                     <TextField
