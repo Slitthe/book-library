@@ -1,6 +1,7 @@
 import useSWR, { mutate } from 'swr';
 import axiosInstance from '../api';
 import { BooksSchema, BookFormValues } from '../schemas/book.ts';
+import { useState } from 'react';
 
 const fetcher = async (url: string) => {
     const response = await axiosInstance.get(url);
@@ -13,39 +14,98 @@ const fetcher = async (url: string) => {
     }
 };
 
-export const useBooks = () => {
+type UseBooksArgs = {
+    onDelete?: () => void;
+    onDeleteError?: () => void;
+    onUpdate?: () => void;
+    onUpdateError?: () => void;
+    onCreate?: () => void;
+    onCreateError?: () => void;
+};
+export const useBooks = ({
+    onDelete,
+    onUpdate,
+    onCreate,
+    onCreateError,
+    onUpdateError,
+    onDeleteError,
+}: UseBooksArgs = {}) => {
     const { data, error, isLoading } = useSWR('/books', fetcher);
+    console.log({ isLoading });
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [isCreating, setIsCreating] = useState(false);
 
     const createBook = async (bookData: BookFormValues) => {
-        const newBook = await axiosInstance.post('/books', bookData);
-        const existingBooks = data ?? [];
-        mutate('/books', [...existingBooks, newBook.data], false);
+        try {
+            setIsCreating(true);
+            const newBook = await axiosInstance.post('/books', bookData);
+            const existingBooks = data ?? [];
+            await mutate('/books', [...existingBooks, newBook.data], false);
+            if (onCreate) {
+                onCreate();
+            }
+        } catch {
+            if (onCreateError) {
+                onCreateError();
+            }
+        } finally {
+            setIsCreating(false);
+        }
     };
 
     const updateBook = async (id: string, bookData: BookFormValues) => {
-        const updatedBook = await axiosInstance.put(`/books/${id}`, bookData);
-        const existingBooks = data ?? [];
-        mutate(
-            '/books',
-            existingBooks.map((book) => (book.id === id ? updatedBook.data : book)),
-            false
-        );
+        try {
+            setIsUpdating(true);
+            const updatedBook = await axiosInstance.put(`/books/${id}`, bookData);
+            const existingBooks = data ?? [];
+            await mutate(
+                '/books',
+                existingBooks.map((book) => (book.id === id ? updatedBook.data : book)),
+                false
+            );
+            if (onUpdate) {
+                onUpdate();
+            }
+        } catch {
+            if (onUpdateError) {
+                onUpdateError();
+            }
+        } finally {
+            setIsUpdating(false);
+        }
     };
 
     const deleteBook = async (id: string) => {
-        await axiosInstance.delete(`/books/${id}`);
-        const existingBooks = data ?? [];
+        try {
+            setIsDeleting(true);
+            await axiosInstance.delete(`/books/${id}`);
+            const existingBooks = data ?? [];
 
-        mutate(
-            '/books',
-            existingBooks.filter((book) => book.id !== id)
-        );
+            await mutate(
+                '/books',
+                existingBooks.filter((book) => book.id !== id)
+            );
+
+            if (onDelete) {
+                onDelete();
+            }
+        } catch {
+            if (onDeleteError) {
+                onDeleteError();
+            }
+        } finally {
+            setIsDeleting(false);
+        }
     };
 
     return {
         books: data,
         isLoading,
         isError: error,
+        isDeleting,
+        isCreating,
+        isUpdating,
         createBook,
         updateBook,
         deleteBook,

@@ -14,6 +14,11 @@ let books = [];
 app.get("/books", async (req, res) => {
   await new Promise((res) => setTimeout(() => res(), 2000));
 
+  if(Math.random() > 0.7) {
+    res.status(500).send("");
+    return;
+  }
+
   console.log({books});
   res.json(books);
 });
@@ -21,6 +26,10 @@ app.get("/books", async (req, res) => {
 // Add a new book
 app.post("/books", async (req, res) => {
   await new Promise((res) => setTimeout(() => res(), 2000));
+  if(Math.random() > 0.7) {
+    res.status(500).send("");
+    return;
+  }
   const book = { id: Date.now(), ...req.body };
   books.push(book);
   res.status(201).json(book);
@@ -29,6 +38,10 @@ app.post("/books", async (req, res) => {
 // Update a book
 app.put("/books/:id", async (req, res) => {
   await new Promise((res) => setTimeout(() => res(), 2000));
+  if(Math.random() > 0.7) {
+    res.status(500).send("");
+    return;
+  }
   const index = books.findIndex((book) => book.id === parseInt(req.params.id));
   if (index >= 0) {
     books[index] = { ...books[index], ...req.body };
@@ -41,7 +54,10 @@ app.put("/books/:id", async (req, res) => {
 // Delete a book
 app.delete("/books/:id", async (req, res) => {
   await new Promise((res) => setTimeout(() => res(), 2000));
-
+  if(Math.random() > 0.7) {
+    res.status(500).send("");
+    return;
+  }
   console.log({params: req.params})
   books = books.filter((book) => book.id !== parseInt(req.params.id));
   res.status(204).send();
