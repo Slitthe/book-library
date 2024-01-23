@@ -14,10 +14,10 @@ let books = [];
 app.get("/books", async (req, res) => {
   await new Promise((res) => setTimeout(() => res(), 2000));
 
-  if(Math.random() > 0.7) {
-    res.status(500).send("");
-    return;
-  }
+  // if(Math.random() > 0.7) {
+  //   res.status(500).send("");
+  //   return;
+  // }
 
   console.log({books});
   res.json(books);

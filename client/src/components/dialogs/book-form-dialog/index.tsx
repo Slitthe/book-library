@@ -11,7 +11,8 @@ import {
     Select,
     MenuItem,
 } from '@mui/material';
-import { BookFormValues, FormValuesSchema } from '../../../schemas/book.ts';
+import { BookFormValues, FormValuesSchema } from '@/schemas/book.ts';
+import { GENRES } from '@/config/constants.ts';
 
 interface BookFormDialogProps {
     open: boolean;
@@ -20,19 +21,6 @@ interface BookFormDialogProps {
     initialValues: BookFormValues;
     isUpdate: boolean;
 }
-
-const genres = [
-    'Fantasy',
-    'Science Fiction',
-    'Mystery',
-    'Thriller',
-    'Romance',
-    'Historical',
-    'Non-Fiction',
-    'Biography',
-    'Self-Help',
-    'Adventure',
-];
 
 const BookFormDialog = ({ open, onClose, onSubmit, initialValues, isUpdate }: BookFormDialogProps) => {
     const formik = useFormik({
@@ -73,7 +61,12 @@ const BookFormDialog = ({ open, onClose, onSubmit, initialValues, isUpdate }: Bo
                         margin="dense"
                     />
                     <FormControl fullWidth margin="dense">
-                        <InputLabel id="genre-label">Genre</InputLabel>
+                        <InputLabel
+                            color={formik.touched.genre && formik.errors.genre ? 'error' : 'primary'}
+                            id="genre-label"
+                        >
+                            Genre
+                        </InputLabel>
                         <Select
                             labelId="genre-label"
                             id="genre"
@@ -83,14 +76,15 @@ const BookFormDialog = ({ open, onClose, onSubmit, initialValues, isUpdate }: Bo
                             onChange={formik.handleChange}
                             error={formik.touched.genre && Boolean(formik.errors.genre)}
                         >
-                            {genres.map((genre) => (
+                            {GENRES.map((genre) => (
                                 <MenuItem key={genre} value={genre}>
                                     {genre}
                                 </MenuItem>
                             ))}
                         </Select>
+
                         {formik.touched.genre && formik.errors.genre && (
-                            <p style={{ color: 'red', fontSize: '0.75rem' }}>{formik.errors.genre}</p>
+                            <p className="text-[#d32f2f] ml-[14px] text-[0.75em]">{formik.errors.genre}</p>
                         )}
                     </FormControl>
                     <TextField

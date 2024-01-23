@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
-import { Book } from '../../schemas/book.ts';
-import { DeleteDialog } from '../dialogs/delete-dialog';
+import { Book } from '@/schemas/book.ts';
+import { DeleteDialog } from '@/components/dialogs/delete-dialog';
 
 interface BookTableProps {
     books?: Book[];
@@ -33,14 +33,14 @@ const BookTable = ({ books, deleteBook, updateBook }: BookTableProps) => {
     return (
         <>
             <TableContainer component={Paper} sx={{ height: '100%' }}>
-                <Table sx={{ minWidth: 300 }} aria-label="simple table" stickyHeader>
+                <Table aria-label="simple table" stickyHeader>
                     <TableHead>
                         <TableRow>
-                            <TableCell>Title</TableCell>
-                            <TableCell align="right">Author</TableCell>
-                            <TableCell align="right">Genre</TableCell>
-                            <TableCell align="right">Description</TableCell>
-                            <TableCell align="right"></TableCell>
+                            <TableCell className="!bg-gray-200 !font-bold">Title</TableCell>
+                            <TableCell className="!bg-gray-200 !font-bold">Author</TableCell>
+                            <TableCell className="!bg-gray-200 !font-bold">Genre</TableCell>
+                            <TableCell className="!bg-gray-200 !font-bold">Description</TableCell>
+                            <TableCell className="!bg-gray-200 !font-bold"></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -50,10 +50,10 @@ const BookTable = ({ books, deleteBook, updateBook }: BookTableProps) => {
                                       <TableCell component="th" scope="row">
                                           {book.title}
                                       </TableCell>
-                                      <TableCell align="right">{book.author}</TableCell>
-                                      <TableCell align="right">{book.genre}</TableCell>
-                                      <TableCell align="right">{book.description}</TableCell>
-                                      <TableCell align="right">
+                                      <TableCell>{book.author}</TableCell>
+                                      <TableCell>{book.genre}</TableCell>
+                                      <TableCell>{book.description}</TableCell>
+                                      <TableCell>
                                           <div className="flex gap-4 justify-end">
                                               <Button variant="outlined" onClick={() => updateBook(book)}>
                                                   Edit

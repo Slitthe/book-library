@@ -24,8 +24,10 @@ export const DeleteDialog = ({ handleClose, handleDelete }: DeleteDialogProps) =
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleClose}>Cancel</Button>
-                <Button onClick={handleDelete} color="secondary" autoFocus>
+                <Button variant="outlined" onClick={handleClose}>
+                    Cancel
+                </Button>
+                <Button variant="contained" onClick={handleDelete} color="error" autoFocus>
                     Delete
                 </Button>
             </DialogActions>

@@ -1,7 +1,7 @@
 import useSWR, { mutate } from 'swr';
-import axiosInstance from '../api';
-import { BooksSchema, BookFormValues } from '../schemas/book.ts';
-import { useState } from 'react';
+import { BookFormValues, BooksSchema } from '@/schemas/book.ts';
+import axiosInstance from '@/api';
+import { useBooksRequestStatus } from '@/store/books.ts';
 
 const fetcher = async (url: string) => {
     const response = await axiosInstance.get(url);
@@ -14,49 +14,28 @@ const fetcher = async (url: string) => {
     }
 };
 
-type UseBooksArgs = {
-    onDelete?: () => void;
-    onDeleteError?: () => void;
-    onUpdate?: () => void;
-    onUpdateError?: () => void;
-    onCreate?: () => void;
-    onCreateError?: () => void;
-};
-export const useBooks = ({
-    onDelete,
-    onUpdate,
-    onCreate,
-    onCreateError,
-    onUpdateError,
-    onDeleteError,
-}: UseBooksArgs = {}) => {
+export const useBooks = () => {
+    const { change } = useBooksRequestStatus((state) => state);
+
     const { data, error, isLoading } = useSWR('/books', fetcher);
-    console.log({ isLoading });
-    const [isDeleting, setIsDeleting] = useState(false);
-    const [isUpdating, setIsUpdating] = useState(false);
-    const [isCreating, setIsCreating] = useState(false);
 
     const createBook = async (bookData: BookFormValues) => {
         try {
-            setIsCreating(true);
+            change('isCreating', true);
             const newBook = await axiosInstance.post('/books', bookData);
             const existingBooks = data ?? [];
             await mutate('/books', [...existingBooks, newBook.data], false);
-            if (onCreate) {
-                onCreate();
-            }
+            change('created', true);
         } catch {
-            if (onCreateError) {
-                onCreateError();
-            }
+            change('createdFailure', true);
         } finally {
-            setIsCreating(false);
+            change('isCreating', false);
         }
     };
 
     const updateBook = async (id: string, bookData: BookFormValues) => {
         try {
-            setIsUpdating(true);
+            change('isUpdating', true);
             const updatedBook = await axiosInstance.put(`/books/${id}`, bookData);
             const existingBooks = data ?? [];
             await mutate(
@@ -64,21 +43,18 @@ export const useBooks = ({
                 existingBooks.map((book) => (book.id === id ? updatedBook.data : book)),
                 false
             );
-            if (onUpdate) {
-                onUpdate();
-            }
+            change('updated', true);
         } catch {
-            if (onUpdateError) {
-                onUpdateError();
-            }
+            change('updatedFailure', true);
         } finally {
-            setIsUpdating(false);
+            change('isUpdating', false);
         }
     };
 
     const deleteBook = async (id: string) => {
         try {
-            setIsDeleting(true);
+            change('isDeleting', true);
+
             await axiosInstance.delete(`/books/${id}`);
             const existingBooks = data ?? [];
 
@@ -87,25 +63,18 @@ export const useBooks = ({
                 existingBooks.filter((book) => book.id !== id)
             );
 
-            if (onDelete) {
-                onDelete();
-            }
+            change('deleted', true);
         } catch {
-            if (onDeleteError) {
-                onDeleteError();
-            }
+            change('deletedFailure', true);
         } finally {
-            setIsDeleting(false);
+            change('isDeleting', false);
         }
     };
 
     return {
         books: data,
-        isLoading,
+        isLoading: isLoading,
         isError: error,
-        isDeleting,
-        isCreating,
-        isUpdating,
         createBook,
         updateBook,
         deleteBook,
