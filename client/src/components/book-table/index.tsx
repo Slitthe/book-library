@@ -1,35 +1,15 @@
-import React, { useState } from 'react';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-} from '@mui/material';
-
-export interface Book {
-    id: string;
-    title: string;
-    author: string;
-    genre: string;
-    description: string;
-}
+import { useState } from 'react';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
+import { Book } from '../../schemas/book.ts';
+import { DeleteDialog } from '../dialogs/delete-dialog';
 
 interface BookTableProps {
-    books: Book[];
+    books?: Book[];
     deleteBook: (id: string) => void;
-    updateBook: (book: Book) => void; // Add this line
+    updateBook: (book: Book) => void;
 }
 
-const BookTable: React.FC<BookTableProps> = ({ books, deleteBook, updateBook }) => {
+const BookTable = ({ books, deleteBook, updateBook }: BookTableProps) => {
     const [open, setOpen] = useState(false);
     const [selectedBook, setSelectedBook] = useState<Book | null>(null);
 
@@ -52,61 +32,53 @@ const BookTable: React.FC<BookTableProps> = ({ books, deleteBook, updateBook }) 
 
     return (
         <>
-            <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 300 }} aria-label="simple table">
+            <TableContainer component={Paper} sx={{ height: '100%' }}>
+                <Table sx={{ minWidth: 300 }} aria-label="simple table" stickyHeader>
                     <TableHead>
                         <TableRow>
                             <TableCell>Title</TableCell>
                             <TableCell align="right">Author</TableCell>
                             <TableCell align="right">Genre</TableCell>
                             <TableCell align="right">Description</TableCell>
-                            <TableCell align="right">Actions</TableCell>
+                            <TableCell align="right"></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {books.map((book) => (
-                            <TableRow key={book.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                <TableCell component="th" scope="row">
-                                    {book.title}
-                                </TableCell>
-                                <TableCell align="right">{book.author}</TableCell>
-                                <TableCell align="right">{book.genre}</TableCell>
-                                <TableCell align="right">{book.description}</TableCell>
-                                <TableCell align="right">
-                                    <Button color="primary" onClick={() => updateBook(book)}>
-                                        Edit
-                                    </Button>
+                        {books
+                            ? books.map((book) => (
+                                  <TableRow key={book.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                      <TableCell component="th" scope="row">
+                                          {book.title}
+                                      </TableCell>
+                                      <TableCell align="right">{book.author}</TableCell>
+                                      <TableCell align="right">{book.genre}</TableCell>
+                                      <TableCell align="right">{book.description}</TableCell>
+                                      <TableCell align="right">
+                                          <div className="flex gap-4 justify-end">
+                                              <Button variant="outlined" onClick={() => updateBook(book)}>
+                                                  Edit
+                                              </Button>
 
-                                    <Button color="secondary" onClick={() => handleClickOpen(book)}>
-                                        Delete
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                                              <Button
+                                                  variant="outlined"
+                                                  color="error"
+                                                  onClick={() => handleClickOpen(book)}
+                                              >
+                                                  Delete
+                                              </Button>
+                                          </div>
+                                      </TableCell>
+                                  </TableRow>
+                              ))
+                            : null}
                     </TableBody>
                 </Table>
+                <div className="w-full text-center mt-4">
+                    {!books || books.length === 0 ? <>No entries found</> : null}
+                </div>
             </TableContainer>
 
-            {/* Delete Confirmation Dialog */}
-            <Dialog
-                open={open}
-                onClose={handleClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-                <DialogTitle id="alert-dialog-title">{'Confirm Delete'}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        Are you sure you want to delete this book?
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    <Button onClick={handleDelete} color="secondary" autoFocus>
-                        Delete
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            {open ? <DeleteDialog handleDelete={handleDelete} handleClose={handleClose} /> : null}
         </>
     );
 };

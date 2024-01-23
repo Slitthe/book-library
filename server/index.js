@@ -11,20 +11,24 @@ app.use(express.json());
 let books = [];
 
 // Get all books
-app.get("/books", (req, res) => {
+app.get("/books", async (req, res) => {
+  await new Promise((res) => setTimeout(() => res(), 2000));
+
   console.log({books});
   res.json(books);
 });
 
 // Add a new book
-app.post("/books", (req, res) => {
+app.post("/books", async (req, res) => {
+  await new Promise((res) => setTimeout(() => res(), 2000));
   const book = { id: Date.now(), ...req.body };
   books.push(book);
   res.status(201).json(book);
 });
 
 // Update a book
-app.put("/books/:id", (req, res) => {
+app.put("/books/:id", async (req, res) => {
+  await new Promise((res) => setTimeout(() => res(), 2000));
   const index = books.findIndex((book) => book.id === parseInt(req.params.id));
   if (index >= 0) {
     books[index] = { ...books[index], ...req.body };
@@ -35,7 +39,9 @@ app.put("/books/:id", (req, res) => {
 });
 
 // Delete a book
-app.delete("/books/:id", (req, res) => {
+app.delete("/books/:id", async (req, res) => {
+  await new Promise((res) => setTimeout(() => res(), 2000));
+
   console.log({params: req.params})
   books = books.filter((book) => book.id !== parseInt(req.params.id));
   res.status(204).send();

@@ -11,21 +11,7 @@ import {
     Select,
     MenuItem,
 } from '@mui/material';
-import * as Yup from 'yup';
-
-const BookSchema = Yup.object().shape({
-    title: Yup.string().required('Title is required'),
-    author: Yup.string().required('Author is required'),
-    genre: Yup.string().required('Genre is required'),
-    description: Yup.string().required('Description is required'),
-});
-
-export interface BookFormValues {
-    title: string;
-    author: string;
-    genre: string;
-    description: string;
-}
+import { BookFormValues, FormValuesSchema } from '../../../schemas/book.ts';
 
 interface BookFormDialogProps {
     open: boolean;
@@ -51,10 +37,9 @@ const genres = [
 const BookFormDialog = ({ open, onClose, onSubmit, initialValues, isUpdate }: BookFormDialogProps) => {
     const formik = useFormik({
         initialValues: initialValues,
-        validationSchema: BookSchema,
+        validationSchema: FormValuesSchema,
         enableReinitialize: true,
         onSubmit: (values) => {
-            formik.resetForm();
             onSubmit(values);
             onClose();
         },
@@ -123,8 +108,12 @@ const BookFormDialog = ({ open, onClose, onSubmit, initialValues, isUpdate }: Bo
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={onClose}>Cancel</Button>
-                    <Button type="submit">{isUpdate ? 'Update' : 'Create'}</Button>
+                    <div className="px-4 flex gap-4">
+                        <Button onClick={onClose}>Cancel</Button>
+                        <Button variant="contained" type="submit">
+                            {isUpdate ? 'Update' : 'Create'}
+                        </Button>
+                    </div>
                 </DialogActions>
             </form>
         </Dialog>
