@@ -15,7 +15,7 @@ import {
     DialogTitle,
 } from '@mui/material';
 
-interface Book {
+export interface Book {
     id: string;
     title: string;
     author: string;
@@ -23,7 +23,13 @@ interface Book {
     description: string;
 }
 
-const BookTable: React.FC<{ books: Book[] }> = ({ books }) => {
+interface BookTableProps {
+    books: Book[];
+    deleteBook: (id: string) => void;
+    updateBook: (book: Book) => void; // Add this line
+}
+
+const BookTable: React.FC<BookTableProps> = ({ books, deleteBook, updateBook }) => {
     const [open, setOpen] = useState(false);
     const [selectedBook, setSelectedBook] = useState<Book | null>(null);
 
@@ -39,7 +45,7 @@ const BookTable: React.FC<{ books: Book[] }> = ({ books }) => {
 
     const handleDelete = () => {
         if (selectedBook) {
-            console.log('Delete Book with id:', selectedBook.id);
+            deleteBook(selectedBook.id);
         }
         handleClose();
     };
@@ -67,7 +73,10 @@ const BookTable: React.FC<{ books: Book[] }> = ({ books }) => {
                                 <TableCell align="right">{book.genre}</TableCell>
                                 <TableCell align="right">{book.description}</TableCell>
                                 <TableCell align="right">
-                                    <Button color="primary">Edit</Button>
+                                    <Button color="primary" onClick={() => updateBook(book)}>
+                                        Edit
+                                    </Button>
+
                                     <Button color="secondary" onClick={() => handleClickOpen(book)}>
                                         Delete
                                     </Button>
@@ -78,6 +87,7 @@ const BookTable: React.FC<{ books: Book[] }> = ({ books }) => {
                 </Table>
             </TableContainer>
 
+            {/* Delete Confirmation Dialog */}
             <Dialog
                 open={open}
                 onClose={handleClose}

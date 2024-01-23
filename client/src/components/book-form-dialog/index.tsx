@@ -1,4 +1,3 @@
-import React from 'react';
 import { useFormik } from 'formik';
 import {
     Dialog,
@@ -14,6 +13,13 @@ import {
 } from '@mui/material';
 import * as Yup from 'yup';
 
+const BookSchema = Yup.object().shape({
+    title: Yup.string().required('Title is required'),
+    author: Yup.string().required('Author is required'),
+    genre: Yup.string().required('Genre is required'),
+    description: Yup.string().required('Description is required'),
+});
+
 export interface BookFormValues {
     title: string;
     author: string;
@@ -21,12 +27,13 @@ export interface BookFormValues {
     description: string;
 }
 
-const BookSchema = Yup.object().shape({
-    title: Yup.string().required('Title is required'),
-    author: Yup.string().required('Author is required'),
-    genre: Yup.string().required('Genre is required'),
-    description: Yup.string().required('Description is required'),
-});
+interface BookFormDialogProps {
+    open: boolean;
+    onClose: () => void;
+    onSubmit: (values: BookFormValues) => void;
+    initialValues: BookFormValues;
+    isUpdate: boolean;
+}
 
 const genres = [
     'Fantasy',
@@ -41,20 +48,13 @@ const genres = [
     'Adventure',
 ];
 
-const BookFormDialog: React.FC<{ open: boolean; onClose: () => void; onSubmit: (values: BookFormValues) => void }> = ({
-    open,
-    onClose,
-    onSubmit,
-}) => {
+const BookFormDialog = ({ open, onClose, onSubmit, initialValues, isUpdate }: BookFormDialogProps) => {
     const formik = useFormik({
-        initialValues: {
-            title: '',
-            author: '',
-            genre: '',
-            description: '',
-        },
+        initialValues: initialValues,
         validationSchema: BookSchema,
+        enableReinitialize: true,
         onSubmit: (values) => {
+            formik.resetForm();
             onSubmit(values);
             onClose();
         },
@@ -62,7 +62,7 @@ const BookFormDialog: React.FC<{ open: boolean; onClose: () => void; onSubmit: (
 
     return (
         <Dialog open={open} onClose={onClose}>
-            <DialogTitle>Create a New Book</DialogTitle>
+            <DialogTitle>{isUpdate ? `Update the book ${formik.values.title}` : 'Create a New Book'} </DialogTitle>
             <form onSubmit={formik.handleSubmit}>
                 <DialogContent>
                     <TextField
@@ -124,7 +124,7 @@ const BookFormDialog: React.FC<{ open: boolean; onClose: () => void; onSubmit: (
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={onClose}>Cancel</Button>
-                    <Button type="submit">Create</Button>
+                    <Button type="submit">{isUpdate ? 'Update' : 'Create'}</Button>
                 </DialogActions>
             </form>
         </Dialog>
